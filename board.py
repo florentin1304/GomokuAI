@@ -18,13 +18,15 @@ class Board():
 
         self.board = []
         self.scores = [0, 0]
-        self.nearSquares = []
+        self.nearSquares = set()
         self.count = [0]
         self.ai_score = 0
         self.lastMove = [-1, -1]
         self.pieces = 0
-        self.sequences = [[[],[],[],[],[]],
-                          [[],[],[],[],[]]]
+        self.sequences = [
+            [[],[],[],[],[]],
+            [[],[],[],[],[]]
+                           ]
 
         self.playerSymbol = ['X','O']
         self.EMPTY = "="
@@ -49,7 +51,7 @@ class Board():
 
             self.pieces += 1
 
-            self.getNearSquares()
+            self.updateNearSquares(row, col)
             self.checkSequences1(0)
             self.checkSequences1(1)
             self.get_score()
@@ -93,15 +95,21 @@ class Board():
         return 0
 
 
-
     def getNearSquares(self):
-        moves = []
-        for i in range(self.dim):
-            for j in range(self.dim):
-                if(self.board[i][j] == self.EMPTY and not(self.moveIsAlone(i,j)) ):
-                    moves.append((i,j))
+        return list(self.nearSquares)
 
-        self.nearSquares = moves
+    def updateNearSquares(self, row, col):
+        if (row, col) in self.nearSquares:
+            self.nearSquares.discard((row, col))
+
+        for d in range(len(dir)):
+            r,c = row + dir[d][0], col + dir[d][1]
+            if self.isInBoard(r,c) and self.board[r][c] == self.EMPTY:
+                self.nearSquares.add((r,c))
+
+            r, c = row - dir[d][0], col - dir[d][1]
+            if self.isInBoard(r, c) and self.board[r][c] == self.EMPTY:
+                self.nearSquares.add((r, c))
 
     def moveIsAlone(self, row, col):
         alone = 1

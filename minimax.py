@@ -3,20 +3,25 @@ import time
 import random
 
 MAX_WIDTH = 12 # ~15 in general
+#TODO: Create an AI object to do memoization
 
 def minimax(board, max_depth, depth, alpha, beta, isMaximizing, count):
     if depth == 0 or board.win != -1:
         count[0] += 1
         return board.ai_score, (0, 0) #il secondo non credo sia giusto
 
+    all_moves = get_all_moves(board, sortRev=True if isMaximizing else False)
 
+    #if len(all_moves) == 1:
+    #    print(board.ai_score, all_moves[0])
+    #    return board.ai_score, all_moves[0][1]
+
+    if (board.pieces <= 1):
+        return 3.5, random.choice(all_moves)[1]
+
+    best_move = None
     if isMaximizing:
         maxEval = float('-inf')
-        best_move = None
-
-        all_moves = get_all_moves(board, sortRev=True)
-        if(board.pieces <= 1):
-            return 3.5, random.choice(all_moves)[1]
         for m in range(len(all_moves)):
             count[0] += 1
             move = all_moves[m]
@@ -34,11 +39,7 @@ def minimax(board, max_depth, depth, alpha, beta, isMaximizing, count):
 
     else:
         minEval = float('inf')
-        best_move = None
 
-        all_moves = get_all_moves(board, sortRev=False)
-        if(board.pieces <= 1):
-            return 3.5, random.choice(all_moves)[1]
         for m in range(len(all_moves)):
             count[0] += 1
             move = all_moves[m]
@@ -61,8 +62,6 @@ def simulate_move(board, move):
     return board
 
 def get_all_moves(board, sortRev):
-    # t = time.time()
-
     moves = [] #ha dentro delle liste/tuple (new_board, (row,col) )
     pos_moves = get_noticeable_moves(board)
     # pos_moves = board.nearSquares
@@ -75,9 +74,6 @@ def get_all_moves(board, sortRev):
 
 
     moves = sorted(moves, key=lambda moves: moves[2], reverse=sortRev)
-
-    # elapsed = time.time() - t
-    # print("Creato " + str(num) +  " mosse in: " + str(elapsed))
 
     return moves[0:(min(num, MAX_WIDTH))]
 
@@ -134,6 +130,6 @@ def get_noticeable_moves(board):
     #                     noticeableMoves.append(move)
 
     if(noticeableMoves == []):
-        noticeableMoves = board.nearSquares
+        noticeableMoves = board.getNearSquares()
 
     return noticeableMoves
